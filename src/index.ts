@@ -20,7 +20,6 @@ app.get('/ui', swaggerUI({ url: '/api-docs' }));
 app.get('/api-docs', (c) => c.json(openApiSchema));
 app.use('/uploads/*', serveStatic({ root: './' }));
 
-
 app.post('/api/upload', async (c) => {
   try {
     const formData = await c.req.formData();
