@@ -16,7 +16,7 @@ await mkdir(UPLOAD_DIR, { recursive: true });
 app.use('*', cors());
 
 
-app.get('/ui', swaggerUI({ url: '/api-docs' }));
+app.get('/', swaggerUI({ url: '/api-docs' }));
 app.get('/api-docs', (c) => c.json(openApiSchema));
 app.use('/uploads/*', serveStatic({ root: './' }));
 
