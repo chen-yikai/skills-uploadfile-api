@@ -33,11 +33,6 @@ app.post('/api/upload', async (c) => {
       return c.json({ error: 'File too large' }, 400);
     }
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4'];
-    if (!allowedTypes.includes(file.type)) {
-      return c.json({ error: 'Invalid file type. Allowed types: JPEG, PNG, GIF, MP4' }, 400);
-    }
-
     const fileExtension = file.name.split('.').pop();
     const newFilename = `${randomUUID()}.${fileExtension}`;
     const filePath = join(UPLOAD_DIR, newFilename);

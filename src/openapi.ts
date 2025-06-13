@@ -39,7 +39,7 @@ export const openApiSchema = {
     '/api/upload': {
       post: {
         summary: 'Upload a file',
-        description: 'Upload a file to the server. Supported file types: JPEG, PNG, GIF, MP4. Maximum file size: 10GB',
+        description: 'Upload any file to the server. Maximum file size: 10GB',
         requestBody: {
           content: {
             'multipart/form-data': {
@@ -49,7 +49,7 @@ export const openApiSchema = {
                   file: {
                     type: 'string',
                     format: 'binary',
-                    description: 'File to upload (JPEG, PNG, GIF, or MP4). Maximum size: 10GB'
+                    description: 'File to upload (any file type)'
                   }
                 },
                 required: ['file']
