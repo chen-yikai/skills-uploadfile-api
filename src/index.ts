@@ -2,14 +2,14 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serveStatic } from 'hono/bun';
 import { randomUUID } from 'crypto';
-import { mkdir, readdir } from 'fs/promises';
+import { mkdir, readdir, unlink } from 'fs/promises';
 import { join } from 'path';
 import { swaggerUI } from '@hono/swagger-ui';
 import { openApiSchema } from './openapi';
 
 const app = new Hono();
 const UPLOAD_DIR = './uploads';
-const MAX_FILE_SIZE = 10 * 1024 * 1024; 
+const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024; // 10GB
 
 await mkdir(UPLOAD_DIR, { recursive: true });
 
@@ -33,10 +33,9 @@ app.post('/api/upload', async (c) => {
       return c.json({ error: 'File too large' }, 400);
     }
 
-
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4'];
     if (!allowedTypes.includes(file.type)) {
-      return c.json({ error: 'Invalid file type' }, 400);
+      return c.json({ error: 'Invalid file type. Allowed types: JPEG, PNG, GIF, MP4' }, 400);
     }
 
     const fileExtension = file.name.split('.').pop();
@@ -77,6 +76,29 @@ app.get('/api/files', async (c) => {
     });
   } catch (error) {
     console.error('Error listing files:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+app.delete('/api/files/:filename', async (c) => {
+  try {
+    const filename = c.req.param('filename');
+    const filePath = join(UPLOAD_DIR, filename);
+
+    try {
+      await unlink(filePath);
+      return c.json({
+        success: true,
+        message: 'File deleted successfully'
+      });
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        return c.json({ error: 'File not found' }, 404);
+      }
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error deleting file:', error);
     return c.json({ error: 'Internal server error' }, 500);
   }
 });

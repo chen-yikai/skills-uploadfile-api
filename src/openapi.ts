@@ -23,6 +23,11 @@ const ErrorResponseSchema = z.object({
   error: z.string()
 });
 
+const DeleteResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string()
+});
+
 export const openApiSchema = {
   openapi: '3.0.0',
   info: {
@@ -34,7 +39,7 @@ export const openApiSchema = {
     '/api/upload': {
       post: {
         summary: 'Upload a file',
-        description: 'Upload a file to the server',
+        description: 'Upload a file to the server. Supported file types: JPEG, PNG, GIF, MP4. Maximum file size: 10GB',
         requestBody: {
           content: {
             'multipart/form-data': {
@@ -43,7 +48,8 @@ export const openApiSchema = {
                 properties: {
                   file: {
                     type: 'string',
-                    format: 'binary'
+                    format: 'binary',
+                    description: 'File to upload (JPEG, PNG, GIF, or MP4). Maximum size: 10GB'
                   }
                 },
                 required: ['file']
@@ -89,6 +95,49 @@ export const openApiSchema = {
             content: {
               'application/json': {
                 schema: FileListResponseSchema
+              }
+            }
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: ErrorResponseSchema
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/files/{filename}': {
+      delete: {
+        summary: 'Delete a file',
+        description: 'Delete a specific file from the server',
+        parameters: [
+          {
+            name: 'filename',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string'
+            },
+            description: 'Name of the file to delete'
+          }
+        ],
+        responses: {
+          '200': {
+            description: 'File deleted successfully',
+            content: {
+              'application/json': {
+                schema: DeleteResponseSchema
+              }
+            }
+          },
+          '404': {
+            description: 'File not found',
+            content: {
+              'application/json': {
+                schema: ErrorResponseSchema
               }
             }
           },
